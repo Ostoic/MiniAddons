@@ -1,24 +1,21 @@
-local f = CreateFrame('frame')
+local function rpair(array, currentIndex)
+	return currentIndex - 1, array[currentIndex - 1]
+end
 
-function shuffle(array)
+local function rpairs(array)
+	return rpair, array, #array + 1
+end
+
+local function shuffle(array)
    if not array then return nil end
    
-   -- fisher-yates
-   local output = { }
-   local random = math.random
+   local output = array
    
-   for index = 1, #array do
-      local offset = index - 1
-      local value = array[index]
-      local randomIndex = offset*random()
-      local flooredIndex = randomIndex - randomIndex%1
-      
-      if flooredIndex == offset then
-         output[#output + 1] = value
-      else
-         output[#output + 1] = output[flooredIndex + 1]
-         output[flooredIndex + 1] = value
-      end
+   for i, _ in rpairs(array) do
+	  if i == 2 then break end
+      local randomIndex = math.random(1, i)
+      print('rand = ' .. randomIndex)
+      output[randomIndex], output[i] = array[i], array[randomIndex]	  
    end
    
    return output
