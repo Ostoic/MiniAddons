@@ -5,25 +5,26 @@ function shuffle(array)
    
    -- fisher-yates
    local output = { }
+   local random = math.random
    
    for index = 1, #array do
       local offset = index - 1
       local value = array[index]
-      local random_index = offset * math.random()
-      local floored_index = random_index - random_index % 1
+      local randomIndex = offset*random()
+      local flooredIndex = randomIndex - randomIndex%1
       
-      if floored_index == offset then
+      if flooredIndex == offset then
          output[#output + 1] = value
       else
-         output[#output + 1] = output[floored_index + 1]
-         output[floored_index + 1] = value
+         output[#output + 1] = output[flooredIndex + 1]
+         output[flooredIndex + 1] = value
       end
    end
    
    return output
 end
 
-local function table_contains(tab, value)
+local function table_contains (tab, value)
    for _, v in ipairs(tab) do
       if value == v then
          return true
@@ -33,14 +34,18 @@ local function table_contains(tab, value)
    return false
 end
 
+local function get_group_type()
+   if not UnitInRaid('player') then
+      return 'party'
+   end
+   
+   return 'raid'
+end
+
 local function get_group_names()
+   local group = get_group_type()
    local names = {}
    names[1] = UnitName('player')
-   
-   local group = 'raid'
-   if not UnitInRaid('player') then
-      group = 'party'
-   end
    
    for i = 1, 40 do
       local name = UnitName(group .. i)
@@ -102,11 +107,28 @@ local function mark_party()
    end
 end
 
+local function in_party()
+   return GetNumPartyMembers() > 0
+end
+
+local function unmark_all()
+   local group = get_group_type()
+   for i = 1, 40 do
+      SetRaidTarget(group .. i, 0)
+   end
+   
+   SetRaidTarget('player', 0)
+end
+
 f:RegisterEvent('RAID_ROSTER_UPDATE')
+f:RegisterEvent('PARTY_MEMBERS_CHANGED')
 f:RegisterEvent('PLAYER_ENTERING_WORLD');
 f:SetScript('OnEvent', function(self, event)
-      if UnitInParty('player') and UnitIsPartyLeader('player') and not UnitInBattleground('player') then
-         print(event)
+      --print(event)
+      if in_party() and UnitIsPartyLeader('player') and not UnitInBattleground('player') then
          mark_party()
+         
+      elseif not in_party() then
+         unmark_all()
       end
 end) 
