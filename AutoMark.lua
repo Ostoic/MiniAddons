@@ -1,9 +1,9 @@
 local function rpair(array, currentIndex)
-	return currentIndex - 1, array[currentIndex - 1]
+   return currentIndex - 1, array[currentIndex - 1]
 end
 
 local function rpairs(array)
-	return rpair, array, #array + 1
+   return rpair, array, #array + 1
 end
 
 local function shuffle(array)
@@ -12,10 +12,9 @@ local function shuffle(array)
    local output = array
    
    for i, _ in rpairs(array) do
-	  if i == 2 then break end
+      if i == 2 then break end
       local randomIndex = math.random(1, i)
-      print('rand = ' .. randomIndex)
-      output[randomIndex], output[i] = array[i], array[randomIndex]	  
+      output[randomIndex], output[i] = array[i], array[randomIndex]      
    end
    
    return output
@@ -105,7 +104,11 @@ local function mark_party()
 end
 
 local function in_party()
-   return GetNumPartyMembers() > 0
+   if get_group_type() == 'party' then
+      return GetNumPartyMembers() > 0
+   end
+   
+   return GetNumRaidMembers() > 0
 end
 
 local function unmark_all()
@@ -117,6 +120,7 @@ local function unmark_all()
    SetRaidTarget('player', 0)
 end
 
+local f = CreateFrame('frame')
 f:RegisterEvent('RAID_ROSTER_UPDATE')
 f:RegisterEvent('PARTY_MEMBERS_CHANGED')
 f:RegisterEvent('PLAYER_ENTERING_WORLD');
